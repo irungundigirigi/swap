@@ -6,13 +6,26 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 
 export function ListingCard({listing}) {
+
+    const TagList = ({ tags = [], type,  }) => (
+        <View style={styles.tags}>
+            {type=='swapping' && <Text style={styles.swappingForTxt}><MaterialCommunityIcons name="swap-horizontal" size={24} color="#0582ca" /> </Text>}
+            {tags.map((tag, index) => (
+                <Text key={index} style={styles.tagHolder}>{tag}</Text>
+            ))}
+        </View>
+    );
+
     return(
         <View style={styles.listingContainer}>
-        <View style={styles.profilePicContainer}>
+        {/* <View style={styles.profilePicContainer}>
          <Image source={{ uri: listing.profilePic }} style={styles.profilePic} />
-        </View>
+        </View> */}
         <View style={styles.listingInfo}>
         <View style={styles.listingHeader}>
+            <View style={styles.profilePicContainer}>
+                <Image source={{ uri: listing.profilePic }} style={styles.profilePic} />
+            </View>
             <Text style={styles.name}>
                 {listing.name}
                 <MaterialIcons name="verified" size={17} color="#ecf39e" />
@@ -21,11 +34,23 @@ export function ListingCard({listing}) {
             <Text style={styles.time}>{listing.time}</Text>
         </View>
         
-            <View style={styles.caption}><Text style={styles.captionTxt}>
-                {listing.caption}</Text></View>
+            <View style={styles.caption}>
+                <Text style={styles.captionTxt}>{listing.caption}</Text>
+            </View>
+            <View style={styles.itemTitleContainer}>
+                <Text style={styles.itemTitle}>{listing.title.toUpperCase()}</Text>
+            </View>
+           
+            {/* Tags */}
+            <TagList tags={[listing.condition, ...listing.tags?.categories || [], ...listing.tags?.brand || [], ...listing.tags?.material || []]} />
+           
             <View style={styles.itemImagesContainer}>
                 <Image source={{ uri: listing.image }} style={styles.itemImage} />
             </View>
+
+            {/* <Text style={styles.swappingForTxt}><MaterialIcons name="change-circle" size={24} color="#0582ca" />SWAPPING FOR</Text> */}
+            <TagList type='swapping' tags={[...listing.swappingFor]} />
+
             <View style={styles.interactions}>
                 <View style={styles.comments}>
                     <MaterialCommunityIcons name="comment-outline" size={24} color="grey" /> 
@@ -57,14 +82,15 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         marginBottom: 20,
-        borderBottomColor: '#778da9',
-        borderBottomWidth: 0.5
+        borderBottomColor: '#003459',
+        borderBottomWidth: 1,
+        borderStyle: 'dotted'
     },
     profilePicContainer : {
-        flex: 1,
-        width: 4,
+        
+        width: 40,
         height: 40,
-        marginRight: 20
+        marginRight: 10
 
     },
     profilePic: {
@@ -78,7 +104,8 @@ const styles = StyleSheet.create({
     },
     listingHeader : {
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginBottom: 5
 
     },
     name : {
@@ -109,7 +136,27 @@ const styles = StyleSheet.create({
         height:'auto',
         fontFamily: 'OutfitRegular',
         color: '#f1faee',
-        fontSize:15
+        fontSize:16
+    },
+    itemTitle: {
+        color: '#00a6fb',
+        fontFamily: 'OutfitRegular',
+        paddingBottom:5
+        
+    },
+    tags: {
+        flexDirection: 'row',
+        flexWrap: 'wrap'
+    },
+    tagHolder: {
+        backgroundColor: '#1d3461',
+        fontFamily: 'OutfitRegular',
+        color: "#f1f3f9",
+        height: 'auto',
+        padding:4,
+        marginRight: 5,
+        borderRadius:4
+
     },
     itemImagesContainer: {
         height: 170,
@@ -123,10 +170,19 @@ const styles = StyleSheet.create({
         marginTop: 10
 
     },
+    swappingForTxt: {
+        display: 'flex',
+        alignItems: 'center',
+        color: '#0582ca',
+        marginBottom: 0,
+        fontFamily: 'OutfitRegular',
+        fontSize: 15
+    },
     interactions: {
         display: 'flex',
         flexDirection: 'row',
         color: 'grey',
+        marginTop: 20,
         marginBottom: 30
 
     },
@@ -155,6 +211,7 @@ const styles = StyleSheet.create({
         marginRight: 20
     },
     interactionsLabel: {
+    
         marginLeft: 3,
         color: "grey"
     }
