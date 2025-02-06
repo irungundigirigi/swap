@@ -1,4 +1,6 @@
 import { Tabs } from 'expo-router';
+import { Text} from 'react-native';
+
 import React from 'react';
 import { Platform } from 'react-native';
 import Notification from '@/components/Notification';

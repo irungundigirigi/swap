@@ -29,6 +29,9 @@ export default function HomeScreen() {
       try {
         // const response = await fetch("../../constants/listings");
         dispatch(setItems(Listings)); // Store items in Redux
+        dispatch(setNotification({ message: "Listings fetched successfully!", type: "success", duration:5000 }))
+       
+
       } catch (err) {
         setError(err.message || "Failed to load items");
       } finally {
@@ -37,6 +40,9 @@ export default function HomeScreen() {
     };
 
     fetchListings();
+
+   
+
   }, [dispatch]);
 
   return (

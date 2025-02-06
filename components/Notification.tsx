@@ -1,25 +1,66 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Animated, StyleSheet } from "react-native";
+import { useDispatch } from "react-redux";
+import Constants from "expo-constants";
+import { clearNotification } from "@/redux/slices/notificationSlice";
 
-const Notification = ({ message, type = "info", duration = 3000, onClose }) => {
-  const [fadeAnim] = useState(new Animated.Value(1)); // Start fully visible
+const paddingTop = Constants.statusBarHeight + 45;
+
+const Notification = ({ message, type = "", duration = 3000 }) => {
+  const dispatch = useDispatch();
+  
+  // Animated values
+  const fadeAnim = useState(new Animated.Value(0))[0]; // Start invisible
+  const translateY = useState(new Animated.Value(-20))[0]; // Start slightly above
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Animate entry: Fade in & Slide down
+    Animated.parallel([
       Animated.timing(fadeAnim, {
-        toValue: 0, // Fade out
-        duration: 500,
+        toValue: 1,
+        duration: 300,
         useNativeDriver: true,
-      }).start(() => {
-        if (onClose) onClose();
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Auto-dismiss after `duration`
+    const timer = setTimeout(() => {
+      // Animate exit: Fade out & Slide up
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(translateY, {
+          toValue: -20,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        dispatch(clearNotification()); // Remove from Redux store
       });
     }, duration);
 
     return () => clearTimeout(timer);
-  }, [fadeAnim, duration, onClose]);
+  }, [fadeAnim, translateY, duration, dispatch]);
 
   return (
-    <Animated.View style={[styles.container, styles[type], { opacity: fadeAnim }]}>
+    <Animated.View
+      style={[
+        styles.container,
+        styles[type],
+        { 
+          opacity: fadeAnim, 
+          transform: [{ translateY }] 
+        }
+      ]}
+    >
       <Text style={styles.text}>{message}</Text>
     </Animated.View>
   );
@@ -28,18 +69,18 @@ const Notification = ({ message, type = "info", duration = 3000, onClose }) => {
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
+    width: "100%",
     top: 0,
-    left: "3%",
-    width: "94%",
-    padding: 15,
-    borderRadius: 10,
+    left: 0,
+    padding: 10,
+    marginTop: paddingTop,
     alignItems: "center",
     justifyContent: "center",
     zIndex: 999,
   },
   text: {
     color: "white",
-    fontWeight: "bold",
+    fontFamily: "OutfitRegular",
   },
   success: {
     backgroundColor: "#4CAF50", // Green

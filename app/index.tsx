@@ -7,6 +7,7 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { setNotification } from '@/redux/slices/notificationSlice';
 import { Link } from 'expo-router';
 import { useRouter } from "expo-router";
 
@@ -15,6 +16,7 @@ import { useRouter } from "expo-router";
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const dispatch = useDispatch()
 
   const colorscheme = useColorScheme();
   const router = useRouter()
@@ -22,19 +24,13 @@ export default function LoginScreen() {
 
 
   const handleLogin = () => {
-    router.push('/(tabs)/')
+    // router.push('/(tabs)/')
+    dispatch(setNotification({ message: "Please use the correct login credentials!", type: "error", duration:2000 }))
+
   };
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: 'white', dark: '#00171f' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-
+    <ParallaxScrollView>
       <ThemedView style={styles.formContainer}>
         <ThemedText type="defaultSemiBold">LOGIN</ThemedText>
         
@@ -80,7 +76,7 @@ const styles = StyleSheet.create({
     fontFamily:'OutfitRegular',
     gap: 16,
     marginBottom: 24,
-    paddingHorizontal: 20,
+    paddingHorizontal: 0,
   },
   inputField: {
     fontFamily:'OutfitRegular',
