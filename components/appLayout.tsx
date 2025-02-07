@@ -24,6 +24,7 @@ export default function AppLayout() {
   const dispatch = useDispatch()
   const colorScheme = useColorScheme();
   const notification = useSelector((state) => state.notification.notification)
+  
   const [loaded] = useFonts({
     OutfitRegular: require('../assets/fonts/Outfit-Regular.ttf'),
   });
@@ -37,7 +38,6 @@ export default function AppLayout() {
   if (!loaded) {
     return null;
   }
-  console.log(notification)
 
   const paddingTop = Constants.statusBarHeight + 20;
 
@@ -45,7 +45,7 @@ export default function AppLayout() {
     // <Provider store={store}>
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <View style={{flex:0.05, backgroundColor: '#00171f',paddingTop, paddingLeft:32, zIndex:23}}>
-        <Image source={require("../assets/images/swaps-logo1.png")} style={{width:80, height: 20}} />
+        <Image source={require("../assets/images/swaps-logo1.png")} style={{width:90, height: 20}} />
       </View>  
       {notification && (
         <Notification
@@ -57,7 +57,6 @@ export default function AppLayout() {
       }    
      
       <Stack>
-        
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />

@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image, TextInput, Button, StyleSheet, Platform } from 'react-native';
+import { API_BASE_URL } from '../constants/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from "react-redux";
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -20,13 +22,42 @@ export default function LoginScreen() {
 
   const colorscheme = useColorScheme();
   const router = useRouter()
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await AsyncStorage.getItem('authToken');
+      if (token) {
+        router.replace('/(tabs)/');
+      }
+      // setIsLoading(false);
+    };
+    checkAuth();
+  }, []);
   
 
 
-  const handleLogin = () => {
-    // router.push('/(tabs)/')
-    dispatch(setNotification({ message: "Please use the correct login credentials!", type: "error", duration:2000 }))
+  const handleLogin = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+  
+      await AsyncStorage.setItem('authToken', data.token);
+  
+      dispatch(setNotification({ message: "Login successful!", type: "success", duration: 2000 }));
+      router.push('/(tabs)/');
 
+    } catch (error) {
+      dispatch(setNotification({ message: error.message, type: "error", duration: 2000 }));
+    }
   };
 
   return (

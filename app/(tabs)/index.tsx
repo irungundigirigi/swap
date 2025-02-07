@@ -29,7 +29,7 @@ export default function HomeScreen() {
       try {
         // const response = await fetch("../../constants/listings");
         dispatch(setItems(Listings)); // Store items in Redux
-        dispatch(setNotification({ message: "Listings fetched successfully!", type: "success", duration:5000 }))
+        // dispatch(setNotification({ message: "Listings fetched successfully!", type: "success", duration:5000 }))
        
 
       } catch (err) {
@@ -44,6 +44,12 @@ export default function HomeScreen() {
    
 
   }, [dispatch]);
+
+  // const logout = async () => {
+  //   await AsyncStorage.removeItem('authToken');
+  //   router.replace('/login');
+  // };
+  
 
   return (
     <ParallaxScrollView
