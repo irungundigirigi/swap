@@ -6,10 +6,12 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 
 export function ListingCard({listing}) {
+    console.log(listing)
 
-    const TagList = ({ tags = [], type,  }) => (
+    const TagList = ({type, tags = []  }) => (
         <View style={styles.tags}>
-            {type=='swapping' && <Text style={styles.swappingForTxt}><MaterialCommunityIcons name="swap-horizontal" size={24} color="#0582ca" /> </Text>}
+            {type=='swapping' && <Text style={styles.swappingForTxt}>
+                <MaterialCommunityIcons name="swap-horizontal" size={24} color="#0582ca" /> </Text>}
             {tags.map((tag, index) => (
                 <Text key={index} style={styles.tagHolder}>{tag}</Text>
             ))}
@@ -24,14 +26,14 @@ export function ListingCard({listing}) {
         <View style={styles.listingInfo}>
         <View style={styles.listingHeader}>
             <View style={styles.profilePicContainer}>
-                <Image source={{ uri: listing.profilePic }} style={styles.profilePic} />
+                <Image source={{ uri: listing.profile_pic }} style={styles.profilePic} />
             </View>
             <Text style={styles.name}>
                 {listing.name}
                 <MaterialIcons name="verified" size={17} color="#ecf39e" />
                  </Text>
             <Text style={styles.username}>{listing.username}</Text>
-            <Text style={styles.time}>{listing.time}</Text>
+            {/* <Text style={styles.time}>{listing.time}</Text> */}
         </View>
         
             <View style={styles.caption}>
@@ -41,34 +43,33 @@ export function ListingCard({listing}) {
                 <Text style={styles.itemTitle}>{listing.title.toUpperCase()}</Text>
             </View>
            
-            {/* Tags */}
-            <TagList tags={[listing.condition, ...listing.tags?.categories || [], ...listing.tags?.brand || [], ...listing.tags?.material || []]} />
+            <TagList tags={[listing.condition, ...listing.tag_names]} />
            
             <View style={styles.itemImagesContainer}>
-                <Image source={{ uri: listing.image }} style={styles.itemImage} />
+                <Image source={{ uri: listing.image[0] }} style={styles.itemImage} />
             </View>
 
-            {/* <Text style={styles.swappingForTxt}><MaterialIcons name="change-circle" size={24} color="#0582ca" />SWAPPING FOR</Text> */}
-            <TagList type='swapping' tags={[...listing.swappingFor]} />
+            {/* <Text style={styles.swappingForTxt}><MaterialIcons name="change-circle" size={24} color="#0582ca" />SWAPPING FOR</Text> */} */}
+            <TagList type='swapping' tags={[listing.exchange_category]} />
 
             <View style={styles.interactions}>
                 <View style={styles.comments}>
                     <MaterialCommunityIcons name="comment-outline" size={24} color="grey" /> 
-                    <Text style={styles.interactionsLabel}>{listing.comments}</Text>
+                    <Text style={styles.interactionsLabel}>{listing.comment_count}</Text>
                 </View>
                 <View style={styles.likes}>
                     <Ionicons name="heart-outline" size={24} color="grey" />
-                    <Text style={styles.interactionsLabel}>{listing.likes}</Text>
+                    <Text style={styles.interactionsLabel}>{listing.like_count}</Text>
                 </View>
                 <View style={styles.offers}>
                     <Ionicons name="hand-left-outline" size={24} color="grey" />
-                    <Text style={styles.interactionsLabel}>{listing.offers}</Text>
+                    <Text style={styles.interactionsLabel}>{listing.offer_count}</Text>
 
                 </View>
-                <View style={styles.location}>
+                {/* <View style={styles.location}>
                     <Feather name="map-pin" size={22} color="grey" />
                     <Text style={styles.interactionsLabel}>{listing.location}</Text>
-                </View>
+                </View> */}
             </View>
         </View>
         

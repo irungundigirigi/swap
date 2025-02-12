@@ -1,9 +1,11 @@
 import { Image, StyleSheet, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL } from '@/constants/api';
 import {ListingCard } from '../../components/ListingCard';
 import React, {useEffect, useState} from 'react';
 import Notification from '@/components/Notification';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import {Listings} from '../../constants/listings';
+import {Listings} from '../../constants/data/listings';
 import { useDispatch, useSelector } from "react-redux";
 import { setNotification, clearNotification } from '@/redux/slices/notificationSlice';
 import { setItems } from "../../redux/slices/listingsSlice";
@@ -18,6 +20,7 @@ export default function HomeScreen() {
   const dispatch = useDispatch();
 
   const listings = useSelector((state) => state.listings.listings);
+  console.log(listings)
   //const notification = useSelector((state) => state.notification.notification);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -26,9 +29,31 @@ export default function HomeScreen() {
   useEffect(() => {
     const fetchListings = async () => {
       setLoading(true);
+      
       try {
-        // const response = await fetch("../../constants/listings");
-        dispatch(setItems(Listings)); // Store items in Redux
+        // await AsyncStorage.removeItem('authToken')
+        const token = await AsyncStorage.getItem('authToken');
+
+        if (!token) {
+          throw new Error('Authorization token is missing');
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/listings`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`, // Attach the token to the Authorization header
+          },
+        });
+
+        if (response.ok) {
+          const listings = await response.json(); // Parse the response as JSON
+          dispatch(setItems(listings)); // Store items in Redux
+        } else {
+          console.error('Failed to fetch listings:', response.status, response.statusText);
+        }
+
+       
         // dispatch(setNotification({ message: "Listings fetched successfully!", type: "success", duration:5000 }))
        
 
@@ -43,7 +68,7 @@ export default function HomeScreen() {
 
    
 
-  }, [dispatch]);
+  }, []);
 
   // const logout = async () => {
   //   await AsyncStorage.removeItem('authToken');
