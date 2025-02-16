@@ -20,7 +20,6 @@ export default function HomeScreen() {
   const dispatch = useDispatch();
 
   const listings = useSelector((state) => state.listings.listings);
-  console.log(listings)
   //const notification = useSelector((state) => state.notification.notification);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

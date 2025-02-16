@@ -5,76 +5,68 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
 
-export function ListingCard({listing}) {
-    console.log(listing)
+export function ListingCard({ listing }) {
+    console.log(listing);
 
-    const TagList = ({type, tags = []  }) => (
+    const TagList = ({ type, tags = [] }) => (
         <View style={styles.tags}>
-            {type=='swapping' && <Text style={styles.swappingForTxt}>
-                <MaterialCommunityIcons name="swap-horizontal" size={24} color="#0582ca" /> </Text>}
+            {type === 'swapping' && (
+                <View style={styles.swappingForTxt}>
+                    <MaterialCommunityIcons name="swap-horizontal" size={24} color="#0582ca" />
+                </View>
+            )}
             {tags.map((tag, index) => (
                 <Text key={index} style={styles.tagHolder}>{tag}</Text>
             ))}
         </View>
     );
 
-    return(
+    return (
         <View style={styles.listingContainer}>
-        {/* <View style={styles.profilePicContainer}>
-         <Image source={{ uri: listing.profilePic }} style={styles.profilePic} />
-        </View> */}
-        <View style={styles.listingInfo}>
-        <View style={styles.listingHeader}>
-            <View style={styles.profilePicContainer}>
-                <Image source={{ uri: listing.profile_pic }} style={styles.profilePic} />
-            </View>
-            <Text style={styles.name}>
-                {listing.name}
-                <MaterialIcons name="verified" size={17} color="#ecf39e" />
-                 </Text>
-            <Text style={styles.username}>{listing.username}</Text>
-            {/* <Text style={styles.time}>{listing.time}</Text> */}
-        </View>
-        
-            <View style={styles.caption}>
-                <Text style={styles.captionTxt}>{listing.caption}</Text>
-            </View>
-            <View style={styles.itemTitleContainer}>
-                <Text style={styles.itemTitle}>{listing.title.toUpperCase()}</Text>
-            </View>
-           
-            <TagList tags={[listing.condition, ...listing.tag_names]} />
-           
-            <View style={styles.itemImagesContainer}>
-                <Image source={{ uri: listing.image[0] }} style={styles.itemImage} />
-            </View>
-
-            {/* <Text style={styles.swappingForTxt}><MaterialIcons name="change-circle" size={24} color="#0582ca" />SWAPPING FOR</Text> */} */}
-            <TagList type='swapping' tags={[listing.exchange_category]} />
-
-            <View style={styles.interactions}>
-                <View style={styles.comments}>
-                    <MaterialCommunityIcons name="comment-outline" size={24} color="grey" /> 
-                    <Text style={styles.interactionsLabel}>{listing.comment_count}</Text>
+            <View style={styles.listingInfo}>
+                <View style={styles.listingHeader}>
+                    <View style={styles.profilePicContainer}>
+                        <Image source={{ uri: listing.profile_pic }} style={styles.profilePic} />
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={styles.name}>{listing.name}</Text>
+                        <MaterialIcons name="verified" size={17} color="#ecf39e" />
+                    </View>
+                    <Text style={styles.username}>{listing.username}</Text>
                 </View>
-                <View style={styles.likes}>
-                    <Ionicons name="heart-outline" size={24} color="grey" />
-                    <Text style={styles.interactionsLabel}>{listing.like_count}</Text>
-                </View>
-                <View style={styles.offers}>
-                    <Ionicons name="hand-left-outline" size={24} color="grey" />
-                    <Text style={styles.interactionsLabel}>{listing.offer_count}</Text>
 
+                <View style={styles.caption}>
+                    <Text style={styles.captionTxt}>{listing.caption}</Text>
                 </View>
-                {/* <View style={styles.location}>
-                    <Feather name="map-pin" size={22} color="grey" />
-                    <Text style={styles.interactionsLabel}>{listing.location}</Text>
-                </View> */}
+                <View style={styles.itemTitleContainer}>
+                    <Text style={styles.itemTitle}>{listing.title.toUpperCase()}</Text>
+                </View>
+
+                <TagList tags={[listing.condition, ...listing.tag_names]} />
+
+                <View style={styles.itemImagesContainer}>
+                    <Image source={{ uri: listing.image[0] }} style={styles.itemImage} />
+                </View>
+
+                <TagList type='swapping' tags={[listing.exchange_category]} />
+
+                <View style={styles.interactions}>
+                    <View style={styles.comments}>
+                        <MaterialCommunityIcons name="comment-outline" size={24} color="grey" />
+                        <Text style={styles.interactionsLabel}>{listing.comment_count}</Text>
+                    </View>
+                    <View style={styles.likes}>
+                        <Ionicons name="heart-outline" size={24} color="grey" />
+                        <Text style={styles.interactionsLabel}>{listing.like_count}</Text>
+                    </View>
+                    <View style={styles.offers}>
+                        <Ionicons name="hand-left-outline" size={24} color="grey" />
+                        <Text style={styles.interactionsLabel}>{listing.offer_count}</Text>
+                    </View>
+                </View>
             </View>
         </View>
-        
-    </View>
-);
+    );
 }
 
 const styles = StyleSheet.create({

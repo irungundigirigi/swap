@@ -23,50 +23,6 @@ export default function LoginScreen() {
   const colorscheme = useColorScheme();
   const router = useRouter()
 
-  useEffect(() => {
-    const checkTokenValidity = async () => {
-      const token = await AsyncStorage.getItem('authToken');
-      console.log(token)
-  
-      if (token) {
-        try {
-          const response = await fetch(`${API_BASE_URL}/api/validate-token`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          });
-  
-          const data = await response.json();
-          console.log(data)
-  
-          if (data.isValid === true) {
-            // Token is valid, navigate to tabs
-            console.log('valid tkn');
-            router.replace('/(tabs)/'); // Use replace to prevent going back
-          } else {
-            // Token is invalid, remove it and navigate to home
-            await AsyncStorage.removeItem('authToken');
-            // router.replace('/');
-          }
-        } catch (error) {
-          console.error('Token validation failed:');
-          // Handle errors (e.g., network issues)
-          await AsyncStorage.removeItem('authToken');
-          // router.replace('/');
-        }
-      }
-      //  else {
-      //   // No token found, navigate to home
-      //   console.log('No token');
-      //   router.replace('/(tabs)');
-      // }
-    };
-  
-    checkTokenValidity();
-  }, []); // Empty dependency array ensures this runs only once on mount
-
 
   const handleLogin = async () => {
     try {
