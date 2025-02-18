@@ -12,9 +12,12 @@ const itemsSlice = createSlice({
   initialState,
   reducers: {
     reload: (state, action) => {
-        !state.reloadItems}
+        !state.reloadItems},
+    setItems: (state, action) => {
+        state.items = action.payload;
+    }
   },
 });
 
-export const { reload } = itemsSlice.actions;
+export const { reload,setItems } = itemsSlice.actions;
 export default itemsSlice.reducer;

@@ -1,34 +1,33 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { Image, StyleSheet,Button, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '@/constants/api';
 import {ListingCard } from '../../components/ListingCard';
-import React, {useEffect, useState} from 'react';
-import Notification from '@/components/Notification';
+import React, {useEffect, useState} from 'react'
+import { View } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
-import {Listings} from '../../constants/data/listings';
 import { useDispatch, useSelector } from "react-redux";
-import { setNotification, clearNotification } from '@/redux/slices/notificationSlice';
 import { setItems } from "../../redux/slices/listingsSlice";
-import { FlatList, Text, ActivityIndicator, View } from "react-native";
-// import { HelloWave } from '@/components/HelloWave';
-// import { ThemedText } from '@/components/ThemedText';
-// import { ThemedView } from '@/components/ThemedView';
+import { router } from "expo-router";
 
 
+  // const logout = async () => {
+  //   await AsyncStorage.removeItem('authToken');
+  //   router.replace('/login');
+  // };
+  
 export default function HomeScreen() {
 
   const dispatch = useDispatch();
   const listings = useSelector((state) => state.listings.listings);
-  //const notification = useSelector((state) => state.notification.notification);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
 
   useEffect(() => {
     const fetchListings = async () => {
       setLoading(true);
       
       try {
-        // await AsyncStorage.removeItem('authToken')
         const token = await AsyncStorage.getItem('authToken');
 
         if (!token) {
@@ -39,19 +38,17 @@ export default function HomeScreen() {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`, // Attach the token to the Authorization header
+            Authorization: `Bearer ${token}`,
           },
         });
 
         if (response.ok) {
-          const listings = await response.json(); // Parse the response as JSON
-          dispatch(setItems(listings)); // Store items in Redux
+          const listings = await response.json();
+          dispatch(setItems(listings));
         } else {
           console.error('Failed to fetch listings:', response.status, response.statusText);
         }
 
-       
-        // dispatch(setNotification({ message: "Listings fetched successfully!", type: "success", duration:5000 }))
         const listings = useSelector((state) => state.listings.listings);
 
       } catch (err) {
@@ -63,15 +60,7 @@ export default function HomeScreen() {
 
     fetchListings();
 
-   
-
   }, []);
-
-  // const logout = async () => {
-  //   await AsyncStorage.removeItem('authToken');
-  //   router.replace('/login');
-  // };
-  
 
   return (
     <ParallaxScrollView
@@ -82,9 +71,16 @@ export default function HomeScreen() {
           style={styles.reactLogo}
         />
       }>
+
        {listings.map((listing) => (
         <ListingCard key={listing.username} listing={listing} />
-        ))}
+        ))}      
+        
+        <View style={{position:'absolute', right: 20, top: 10}}>
+          <Button  title='create-listing' onPress={() => router.push('/createListing')} />
+        </View>
+
+
     </ParallaxScrollView>
   );
 }

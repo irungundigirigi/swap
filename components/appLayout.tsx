@@ -108,8 +108,14 @@ export default function AppLayout() {
               headerShown: true, 
               headerStyle: { backgroundColor: '#00171f' }, 
               headerTitleStyle: { color: 'white', fontFamily: 'OutfitRegular', fontSize: 18 }
-        }} 
-        />
+        }}/>
+        <Stack.Screen 
+            name="createListing" 
+            options={{ 
+              headerShown: true, 
+              headerStyle: { backgroundColor: '#00171f' }, 
+              headerTitleStyle: { color: 'white', fontFamily: 'OutfitRegular', fontSize: 18 }
+        }}/>
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />

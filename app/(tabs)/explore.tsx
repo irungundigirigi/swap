@@ -4,12 +4,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '@/constants/api';
 import ListCard from '@/components/ItemCard';
 import { router } from 'expo-router';
+import { setItems } from '@/redux/slices/itemsSlice';
 import { useFocusEffect } from 'expo-router';
+import { useDispatch, useSelector } from 'react-redux';
 export default function TabTwoScreen() {
 
-  const [items, setItems] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const dispatch = useDispatch()
+  const items = useSelector((state) => state.items.items);
 
   const fetchItems = async () => {
     try {
@@ -29,7 +33,7 @@ export default function TabTwoScreen() {
 
       if (response.ok) {
         const items = await response.json();
-        setItems(items)
+        dispatch(setItems(items));
       } else {
         console.error('Failed to fetch listings:', response.status, response.statusText);
       }       

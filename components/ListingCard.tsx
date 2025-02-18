@@ -4,6 +4,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Feather from '@expo/vector-icons/Feather';
+import { API_BASE_URL } from '@/constants/api';
 
 export function ListingCard({ listing }) {
     console.log(listing);
@@ -45,7 +46,7 @@ export function ListingCard({ listing }) {
                 <TagList tags={[listing.condition, ...listing.tag_names]} />
 
                 <View style={styles.itemImagesContainer}>
-                    <Image source={{ uri: listing.image[0] }} style={styles.itemImage} />
+                    <Image source={{ uri: `${API_BASE_URL}${listing.image[0]}` }} style={styles.itemImage} />
                 </View>
 
                 <TagList type='swapping' tags={[listing.exchange_category]} />
