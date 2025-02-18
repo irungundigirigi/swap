@@ -18,12 +18,10 @@ import { FlatList, Text, ActivityIndicator, View } from "react-native";
 export default function HomeScreen() {
 
   const dispatch = useDispatch();
-
   const listings = useSelector((state) => state.listings.listings);
   //const notification = useSelector((state) => state.notification.notification);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -54,7 +52,7 @@ export default function HomeScreen() {
 
        
         // dispatch(setNotification({ message: "Listings fetched successfully!", type: "success", duration:5000 }))
-       
+        const listings = useSelector((state) => state.listings.listings);
 
       } catch (err) {
         setError(err.message || "Failed to load items");
