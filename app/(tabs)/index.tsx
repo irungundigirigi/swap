@@ -1,68 +1,55 @@
-import { Image, StyleSheet,Button, Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_BASE_URL } from '@/constants/api';
+import { Image, StyleSheet } from 'react-native';
 import {ListingCard } from '../../components/ListingCard';
 import React, {useEffect, useState} from 'react'
 import { View } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { useDispatch, useSelector } from "react-redux";
 import { setItems } from "../../redux/slices/listingsSlice";
+import {flipLoading } from '../../redux/slices/itemsSlice'
 import { router } from "expo-router";
+import {authFetch} from '../../utils/authFetch';
+import RoundPressable from '../../components/RoundPressable';
 
 
   // const logout = async () => {
   //   await AsyncStorage.removeItem('authToken');
   //   router.replace('/login');
   // };
-  
 export default function HomeScreen() {
 
   const dispatch = useDispatch();
   const listings = useSelector((state) => state.listings.listings);
+  const refetch = useSelector((state) => state.items.fetchItems);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const fetchListings = async () => {
+    setLoading(true);
+    
+    try {
+      setLoading(true);
+      const data = await authFetch('/api/listings', {method: 'GET'});
+      await dispatch(setItems(data));
+      dispatch(flipLoading(true));
+
+    } catch (err) {
+      setError(err.message || "Failed to load items");
+    } finally {
+      dispatch(flipLoading(false));
+    }
+  };
 
   useEffect(() => {
-    const fetchListings = async () => {
-      setLoading(true);
-      
-      try {
-        const token = await AsyncStorage.getItem('authToken');
-
-        if (!token) {
-          throw new Error('Authorization token is missing');
-        }
-
-        const response = await fetch(`${API_BASE_URL}/api/listings`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.ok) {
-          const listings = await response.json();
-          dispatch(setItems(listings));
-        } else {
-          console.error('Failed to fetch listings:', response.status, response.statusText);
-        }
-
-        const listings = useSelector((state) => state.listings.listings);
-
-      } catch (err) {
-        setError(err.message || "Failed to load items");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchListings();
-
-  }, []);
+  }, [refetch]);
 
   return (
+    <>
+    <View style={{position:'absolute', right: 35, top: 20, zIndex:10}}> 
+      <RoundPressable onPress={() => router.push('/createListing')} iconName='pencil'></RoundPressable>
+    </View>
+
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#3A5A40' }}
       headerImage={
@@ -73,15 +60,10 @@ export default function HomeScreen() {
       }>
 
        {listings.map((listing) => (
-        <ListingCard key={listing.username} listing={listing} />
+        <ListingCard key={listing.listing_id} listing={listing} />
         ))}      
-        
-        <View style={{position:'absolute', right: 20, top: 10}}>
-          <Button  title='create-listing' onPress={() => router.push('/createListing')} />
-        </View>
-
-
     </ParallaxScrollView>
+    </>
   );
 }
 

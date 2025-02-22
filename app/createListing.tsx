@@ -6,12 +6,10 @@ import { useDispatch, UseDispatch, useSelector } from 'react-redux';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { API_BASE_URL } from '@/constants/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { categories } from '@/constants/data/categories';
 import { setNotification } from '@/redux/slices/notificationSlice';
-import { reload } from '@/redux/slices/itemsSlice';
 import { Ionicons } from '@expo/vector-icons';
-
+import { authFetch } from '../utils/authFetch';
+import { reload } from '../redux/slices/itemsSlice';
 
 //tables - listings, listing_item, swapping_for
 // fields - listing_id, user_id, caption, likes*, | listing_id, item_id | item_id*, category_id
@@ -33,42 +31,19 @@ export default function createListing() {
         setFormData(prevState => ({ ...prevState, [key]: value }));
     };
 
-    const categories_map = {"Camping":1};
-    const categories=["Camping"];
-
-  
-
-    const handleItemAdd = async () => {
-
-    };
+    const categories_map = {"Camping":1, "books":2};
+    const categories=["Camping","books"];
 
     const handleSubmit = async () => {
      
         try {
-            const token = await AsyncStorage.getItem('authToken');
-            if (!token) {
-              throw new Error('Authorization token is missing');
-            };
-
-            // item_id,title,description,condition,image,location,category_id 
             const listing_id = uuid.v4();
 
             let fd = formData;
             const item_body ={listing_id,caption:fd.caption, category: fd.category_id, item_id: fd.item_id};
-            console.log(item_body);
-            await fetch(`${API_BASE_URL}/api/listing`, {
-                method: 'POST',
-                body: JSON.stringify(item_body),
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                  }
-            }).then(response => {
-                if(response.ok) {
-                    dispatch(setNotification({ message: "Listing added successfully!", type: "success", duration: 2000 }));
-                }
-                dispatch(reload('success'));
-            });
+            const data = await authFetch('/api/listing',{method:'POST', body: JSON.stringify(item_body)})
+            data && dispatch(setNotification({ message: "Listing added successfully!", type: "success", duration: 2000 }));
+            dispatch(reload());
 
         } catch (error) {
             console.error('Error uploading Listing', error);
@@ -86,7 +61,7 @@ export default function createListing() {
             />
             <Text style={{color:'white', padding:5,fontFamily: 'OutfitRegular',}}>Select item</Text>
             {searched_items.map((item, index) => (
-               <View style={styles.itemContainer} >
+               <View key={item.item_id} style={styles.itemContainer} >
 
                     <Image source={{ uri: `${API_BASE_URL}${item?.image[0]}` }} style={styles.image} />
                     <View style={styles.infoContainer}>
@@ -99,7 +74,6 @@ export default function createListing() {
                     {item.item_id == formData.item_id && <Text style={{color:'green'}}>selected</Text>}
                 
                 </View>
-           
 
             ))}
                 
@@ -122,7 +96,6 @@ export default function createListing() {
                     </View>
                 )}
             </View>
-
             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>Add Listing</Text>
             </TouchableOpacity>

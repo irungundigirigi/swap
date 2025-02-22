@@ -12,6 +12,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { setNotification } from '@/redux/slices/notificationSlice';
 import { Link } from 'expo-router';
 import { useRouter } from "expo-router";
+import {fetchAPI} from '../utils/authFetch';
 
 
 
@@ -26,19 +27,11 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-  
-      const data = await response.json();
-  
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-  
-      await AsyncStorage.setItem('authToken', data.token);
+      const data = await fetchAPI('/auth/login',
+         {body: JSON.stringify({email, password}),method: 'POST'}
+        );
+
+      (data.token && await AsyncStorage.setItem('authToken', data.token));
   
       dispatch(setNotification({ message: "Login successful!", type: "success", duration: 2000 }));
       router.push('/(tabs)/');

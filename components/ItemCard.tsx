@@ -1,38 +1,27 @@
-import React from 'react';
+import React,{useState} from 'react';
+import { useDispatch, UseDispatch } from 'react-redux';
 import { View, Text, Image, FlatList, StyleSheet, Pressable } from 'react-native';
+import {reload} from '../redux/slices/itemsSlice';
+import { setNotification } from '../redux/slices/notificationSlice';
 import { Ionicons } from '@expo/vector-icons';
 import { API_BASE_URL } from '@/constants/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {authFetch} from '../utils/authFetch';
 
 const ListCard = ({ items }) => {
+    const [error, setError] = useState(null);
+    const dispatch = useDispatch();
 
     const handleItemDelete = async (item_id) => {
+
+        const id = await  JSON.stringify(item_id)
         try {
-            const token = await AsyncStorage.getItem('authToken');
-      
-            if (!token) {
-              throw new Error('Authorization token is missing');
-            }
+            const data = await  authFetch('/api/items', {method: 'DELETE', body:JSON.stringify({item_id})});
+            dispatch(setNotification({ message: data.message, type: "success", duration: 2000 }));
+            dispatch(reload())
 
-
-      
-            const response = await fetch(`${API_BASE_URL}/api/items`, {
-              method: 'DELETE',
-              body: JSON.stringify({item_id: item_id}),
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
-            });
-      
-            if (response.ok) {
-              const response = await response.json();
-            } else {
-              console.error('Failed to DElete item', response.status, response.statusText);
-            }       
       
           } catch (err) {
-            setError(err.message || "Failed to load items");
+            setError(err.message || "Failed to delete items");
           } 
 
     };

@@ -1,8 +1,10 @@
 import { Link, Stack } from 'expo-router';
 import { TextInput, FlatList, View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
 import uuid from 'react-native-uuid';
+import { authFetch, authImageFetch } from '../utils/authFetch';
 import { StyleSheet } from 'react-native';
 import { useState } from 'react';
+import {reload} from '../redux/slices/itemsSlice';
 import { useDispatch, UseDispatch } from 'react-redux';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import * as ImagePicker from 'expo-image-picker';
@@ -11,7 +13,6 @@ import { API_BASE_URL } from '@/constants/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { categories } from '@/constants/data/categories';
 import { setNotification } from '@/redux/slices/notificationSlice';
-import { reload } from '@/redux/slices/itemsSlice';
 
 
 export default function addItem() {
@@ -19,7 +20,7 @@ export default function addItem() {
     const colorscheme = useColorScheme();
     const [formData, setFormData] = useState({
         title: '',
-        category: 0,
+        category: '',
         description: '',
         condition: '',
         images: [],
@@ -34,8 +35,8 @@ export default function addItem() {
     const [input, setInput] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [tags, setTags] = useState([]);
-    const categories_map = {"Camping":1};
-    const categories=["Camping"]
+    const categories_map = {"Camping":1, "books":2};
+    const categories=["Camping", "books"]
     const conditions = ["new", "gently-used", "used", "damaged", "vintage"];
 
     const tagMap = {
@@ -113,7 +114,8 @@ export default function addItem() {
     };
 
     const removeTag = (tag) => {
-        setTags(tags.filter(t => t !== tag));
+        const filtered_tags =  formData.tags.filter(t => t !== tag);
+        setFormData(prevState => ({ ...prevState, tags: filtered_tags }));
     };
 
     const pickImage = async () => {
@@ -131,7 +133,7 @@ export default function addItem() {
         });
 
         if (!result.canceled) {
-            updateFormData('images', [...formData.images, ...result.assets.map(asset => asset.uri)]);
+            updateFormData('images', result.assets.map(asset => asset.uri));
             
         }
 
@@ -139,66 +141,45 @@ export default function addItem() {
 
     const handleSubmit = async () => {
      
-        try {
-            const token = await AsyncStorage.getItem('authToken');
-            if (!token) {
-              throw new Error('Authorization token is missing');
-            }
-
-            const formd = new FormData();
-
-            formData.images.forEach((image, i) => {
-                let imgName = `${formData.title.replace(/\s+/g, '')}_${Math.floor(Math.random() * 50) + 1}.jpg`;
-
-                formd.append("images[]", {
-                    uri: image,
-                    type: "image/jpeg",
-                    name: imgName
+            try {
+                const formd = new FormData();
+                const item_id = uuid.v4();
+                const tagIds = formData.tags.map(tag => tagMap[tag]).filter(id => id !== undefined);
+        
+                // Append images
+                formData.images.forEach((image, i) => {
+                    let imgName = `${formData.title.replace(/\s+/g, '')}_${Math.floor(Math.random() * 50) + 1}.jpg`;
+        
+                    formd.append("images[]", {
+                        uri: image,
+                        type: "image/jpeg",
+                        name: imgName
+                    });
                 });
-            });
+        
+                // Append other item details
+                formd.append("item_id", item_id);
+                formd.append("title", formData.title);
+                formd.append("description", formData.description);
+                formd.append("condition", formData.condition);
+                formd.append("category_id", formData.category);
+                formd.append("tags", JSON.stringify(tagIds)); // Convert array to string
+        
+                // API request
+                const response = await authImageFetch('/api/item-upload', {
+                    method: 'POST',
+                    body: formd
+                });
 
-            const response = await fetch(`${API_BASE_URL}/api/upload`, {
-                method: 'POST',
-                body: formd,
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                  }
-            });
-    
-            const data = await response.json();
-            
-            await updateFormData('image_urls', [...formData.image_urls, ...data.imageUrls]);
-
-            if (formData.image_urls.length == 0) { return null}
-            const tagIds = formData.tags.map(tag => tagMap[tag]).filter(id => id !== undefined);
-
-            // item_id,title,description,condition,image,location,category_id 
-            const item_id = uuid.v4();
-
-            let fd = formData;
-            const item_body ={item_id,title:fd.title,description:fd.description, condition: fd.condition,
-                image:fd.image_urls, category_id:fd.category, tags: tagIds
+                dispatch(setNotification({ message: response.message, type: "success", duration: 2000 }));
+                dispatch(reload())
+        
+                console.log("Upload response:", response);
+            } catch (error) {
+                console.error("Error uploading item:", error);
             }
-            console.log(item_body)
-
-            const response1 = await fetch(`${API_BASE_URL}/api/item`, {
-                method: 'POST',
-                body: JSON.stringify(item_body),
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                  }
-            }).then(response => {
-                if(response.ok) {
-                    dispatch(setNotification({ message: "item added successfully!", type: "success", duration: 2000 }));
-                }
-                dispatch(reload('success'));
-            });
-
-        } catch (error) {
-            console.error('Error uploading item:', error);
-        }
     };
+    
     
     return (
         <View style={styles.container}>

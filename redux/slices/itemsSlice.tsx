@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   items: [],
-  reloadItems: false,
+  fetchItems: false,
   loading: false,
   error: null,
 };
@@ -12,12 +12,15 @@ const itemsSlice = createSlice({
   initialState,
   reducers: {
     reload: (state, action) => {
-        !state.reloadItems},
+        state.fetchItems = !state.fetchItems},
     setItems: (state, action) => {
         state.items = action.payload;
-    }
+    },
+    flipLoading: (state, action) => {
+      state.loading = action.payload
+    },
   },
 });
 
-export const { reload,setItems } = itemsSlice.actions;
+export const { reload,setItems, flipLoading } = itemsSlice.actions;
 export default itemsSlice.reducer;
