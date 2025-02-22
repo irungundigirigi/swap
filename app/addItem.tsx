@@ -3,7 +3,7 @@ import { TextInput, FlatList, View, Text, Image, TouchableOpacity, ScrollView } 
 import uuid from 'react-native-uuid';
 import { authFetch, authImageFetch } from '../utils/authFetch';
 import { StyleSheet } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {reload} from '../redux/slices/itemsSlice';
 import { useDispatch, UseDispatch } from 'react-redux';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -15,7 +15,21 @@ import { categories } from '@/constants/data/categories';
 import { setNotification } from '@/redux/slices/notificationSlice';
 
 
-export default function addItem() {
+const addItem = () => {
+
+    const[itemCategories, setItemCategories]=useState([]);
+
+    const fetch_categories = async() => {
+        const categories_ = await authFetch('/api/item_categories', {method: 'GET'})
+        setItemCategories(categories_);
+        console.log(categories_)
+    }
+
+    useEffect(() =>
+    { 
+        fetch_categories()
+    }, []
+    )
     const dispatch = useDispatch();
     const colorscheme = useColorScheme();
     const [formData, setFormData] = useState({
@@ -38,6 +52,7 @@ export default function addItem() {
     const categories_map = {"Camping":1, "books":2};
     const categories=["Camping", "books"]
     const conditions = ["new", "gently-used", "used", "damaged", "vintage"];
+
 
     const tagMap = {
         "Coleman": 1,
@@ -199,11 +214,11 @@ export default function addItem() {
             />
             <View style={{marginBottom:15}}>
                 <Text style={{color:'grey', fontFamily: 'OutfitRegular',marginBottom: 5}}>Item category:  {formData.category || 'none'}</Text>
-                {categories.length > 0 && (
+                {itemCategories.length > 0 && (
                     <View style={styles.suggestionsContainer}>
-                        {categories.map((item, index) => (
-                            <TouchableOpacity key={index} onPress={() => updateFormData('category',categories_map[item])}>
-                                <Text style={styles.suggestionText}>{item}</Text>
+                        {itemCategories.map((item, index) => (
+                            <TouchableOpacity key={index} onPress={() => updateFormData('category',item.category_ids)}>
+                                <Text style={styles.suggestionText}>{item.title}</Text>
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -265,6 +280,7 @@ export default function addItem() {
         </View>
     );
 }
+export default addItem;
 
 const styles = StyleSheet.create({
     container: {
