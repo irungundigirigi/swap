@@ -18,8 +18,11 @@ export default function TabTwoScreen() {
 
 
   const fetchItems = async () => {
+    console.log('fetching items')
+    setLoading(true);
     try {
       const items = await authFetch('/api/items', {method: 'GET'})
+      console.log(items)
       dispatch(setItems(items));
 
     } catch (err) {
@@ -31,9 +34,7 @@ export default function TabTwoScreen() {
   };
 
   useEffect(() => {
-    setLoading(true)
     fetchItems();
-    setLoading(false)
   }, [Fetch]);
 
   return (

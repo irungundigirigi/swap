@@ -14,7 +14,7 @@ const processResponse = async(response) => {
 const fetchAPI = async (endpoint, options = {}) => {  
   const headers = {
     ...options.headers,
-    // Authorization: `Bearer ${token}`, 
+    // Authorization: `Bearer ${token}`,
     'Content-Type': 'application/json',
   };
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {

@@ -34,6 +34,7 @@ export default function AppLayout() {
   
   const checkTokenValidity = async () => {
     const token = await AsyncStorage.getItem('authToken');
+    console.log(token)
 
     if (token) {
       try {

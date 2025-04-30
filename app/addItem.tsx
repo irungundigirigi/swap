@@ -22,7 +22,14 @@ const addItem = () => {
     const fetch_categories = async() => {
         const categories_ = await authFetch('/api/item_categories', {method: 'GET'})
         setItemCategories(categories_);
-        console.log(categories_)
+        setSuggestions([]);
+    }
+
+    const fetchTags = async(category:Number) => {
+        const category_tags = await authFetch(`/api/category_tags?category_id=${category}`, {method: 'GET'})
+        console.log(category_tags)
+        await setCategory_tags(category_tags)
+ 
     }
 
     useEffect(() =>
@@ -46,76 +53,31 @@ const addItem = () => {
         setFormData(prevState => ({ ...prevState, [key]: value }));
     };
 
+
+
     const [input, setInput] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [tags, setTags] = useState([]);
+    const [category_tags, setCategory_tags] = useState([]);
     const categories_map = {"Camping":1, "books":2};
     const categories=["Camping", "books"]
     const conditions = ["new", "gently-used", "used", "damaged", "vintage"];
 
 
     const tagMap = {
-        "Coleman": 1,
-        "Waterproof": 3,
-        "Lightweight": 4,
-        "North Face": 2,
-        "LightWeight": 5,
-        "Compact": 6,
-        "Durable": 7,
-        "Windproof": 9,
-        "Insulated": 10,
-        "Quick-dry": 11,
-        "Adjustable": 12,
-        "Limited-Edition": 13,
-        "Custom-Prints": 14,
-        "Collectors-item": 15,
-        "Retro-Design": 16,
-        "Vintage": 17,
-        "Holiday-Themed": 18,
-        "Collectors-Item": 19,
-        "Recycled": 20,
-        "Bio-Degradable": 21,
-        "Solar-Powered": 22,
-        "PFC-Free": 23,
-        "Carbon Neutral": 24,
-        "Energy-Efficient": 25,
-        "Organic": 26,
-        "Responsible-Sourcing": 27
+
+        "non-fiction": 25
     };
     
     const predefinedTags = [
-        "Coleman",
-        "Waterproof",
-        "Lightweight",
-        "North Face",
-        "Compact",
-        "Durable",
-        "Windproof",
-        "Insulated",
-        "Quick-dry",
-        "Adjustable",
-        "Limited-Edition",
-        "Custom-Prints",
-        "Collectors-item",
-        "Retro-Design",
-        "Vintage",
-        "Holiday-Themed",
-        "Collectors-Item",
-        "Recycled",
-        "Bio-Degradable",
-        "Solar-Powered",
-        "PFC-Free",
-        "Carbon Neutral",
-        "Energy-Efficient",
-        "Organic",
-        "Responsible-Sourcing"
+        "non-fiction"
     ];
     
 
     const updateSuggestions = (text) => {
         setInput(text);
-        const filteredSuggestions = predefinedTags.filter(item =>
-            item.toLowerCase().startsWith(text.toLowerCase())
+        const filteredSuggestions = category_tags?.filter(item =>
+            item.tag_name.toLowerCase().startsWith(text.toLowerCase())
         );
         setSuggestions(filteredSuggestions);
     };
@@ -127,6 +89,11 @@ const addItem = () => {
         setInput('');
         setSuggestions([]);
     };
+
+    const updateItemCategory = async (category_id) => {
+        await fetchTags(category_id);
+        await updateFormData('category',category_id)
+    }
 
     const removeTag = (tag) => {
         const filtered_tags =  formData.tags.filter(t => t !== tag);
@@ -217,7 +184,10 @@ const addItem = () => {
                 {itemCategories.length > 0 && (
                     <View style={styles.suggestionsContainer}>
                         {itemCategories.map((item, index) => (
-                            <TouchableOpacity key={index} onPress={() => updateFormData('category',item.category_ids)}>
+                            <TouchableOpacity key={index} 
+                                onPress={() => updateItemCategory(item.category_id)}
+                                // onPress={() => updateFormData('category',item.category_id)}
+                            >
                                 <Text style={styles.suggestionText}>{item.title}</Text>
                             </TouchableOpacity>
                         ))}
@@ -250,7 +220,7 @@ const addItem = () => {
                 <View style={styles.suggestionsContainer}>
                     {suggestions.map((item, index) => (
                         <TouchableOpacity key={index} onPress={() => addTag(item)}>
-                            <Text style={styles.suggestionText}>{item}</Text>
+                            <Text style={styles.suggestionText}>{item.tag_name}</Text>
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -258,7 +228,7 @@ const addItem = () => {
             <View style={styles.selectedTagsContainer}>
                 {formData.tags?.map((tag, index) => (
                     <View key={index} style={styles.tagItem}>
-                        <Text style={styles.tagText}>{tag}</Text>
+                        <Text style={styles.tagText}>{tag.tag_name}</Text>
                         <TouchableOpacity onPress={() => removeTag(tag)}>
                             <MaterialIcons name="cancel" size={24} color="#ba181b" />
                         </TouchableOpacity>

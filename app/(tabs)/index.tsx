@@ -59,9 +59,9 @@ export default function HomeScreen() {
         />
       }>
 
-       {listings.map((listing) => (
+       {/* {listings && listings.map((listing) => (
         <ListingCard key={listing.listing_id} listing={listing} />
-        ))}      
+        ))}       */}
     </ParallaxScrollView>
     </>
   );
