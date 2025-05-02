@@ -19,12 +19,14 @@ const addItem = () => {
 
     const[itemCategories, setItemCategories]=useState([]);
 
+    //Fetches available item categories from API
     const fetch_categories = async() => {
         const categories_ = await authFetch('/api/item_categories', {method: 'GET'})
         setItemCategories(categories_);
         setSuggestions([]);
     }
 
+    //Fetches available tags based on selected category
     const fetchTags = async(category:Number) => {
         const category_tags = await authFetch(`/api/category_tags?category_id=${category}`, {method: 'GET'})
         console.log(category_tags)
@@ -39,6 +41,8 @@ const addItem = () => {
     )
     const dispatch = useDispatch();
     const colorscheme = useColorScheme();
+
+    //Manage Component state -- form data
     const [formData, setFormData] = useState({
         title: '',
         category: '',
@@ -48,13 +52,6 @@ const addItem = () => {
         image_urls:[],
         tags: []
     });
-
-    const updateFormData = (key, value) => {
-        setFormData(prevState => ({ ...prevState, [key]: value }));
-    };
-
-
-
     const [input, setInput] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [tags, setTags] = useState([]);
@@ -64,15 +61,10 @@ const addItem = () => {
     const conditions = ["new", "gently-used", "used", "damaged", "vintage"];
 
 
-    const tagMap = {
-
-        "non-fiction": 25
+    //updates form data
+    const updateFormData = (key, value) => {
+        setFormData(prevState => ({ ...prevState, [key]: value }));
     };
-    
-    const predefinedTags = [
-        "non-fiction"
-    ];
-    
 
     const updateSuggestions = (text) => {
         setInput(text);
@@ -86,6 +78,7 @@ const addItem = () => {
         if (!formData.tags.includes(tag)) {
             updateFormData('tags', [...formData.tags, tag]);
         }
+        console.log(formData.tags); 
         setInput('');
         setSuggestions([]);
     };
@@ -122,11 +115,32 @@ const addItem = () => {
     };
 
     const handleSubmit = async () => {
+
+            // Validate form fields
+            if (!formData.title || !formData.description || !formData.category || !formData.condition || formData.images.length === 0) {
+                dispatch(setNotification({ message: "Please fill in all required fields.", type: "error", duration: 2000 }));
+                return;
+            }
      
             try {
+
+                // Check for duplicate item title
+                
+                const existing = await authFetch(`/api/check_item_title?title=${formData.title}`, {
+                method: 'GET'
+                 });
+                console.log(existing)
+
+                
+
+                if (existing.exists) {
+                    dispatch(setNotification({ message: "An item with this title already exists.", type: "error", duration: 2000 }));
+                    return;
+                }
+
                 const formd = new FormData();
                 const item_id = uuid.v4();
-                const tagIds = formData.tags.map(tag => tagMap[tag]).filter(id => id !== undefined);
+                const tagIds = formData.tags.map(tag => tag.id);
         
                 // Append images
                 formData.images.forEach((image, i) => {
