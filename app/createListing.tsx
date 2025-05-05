@@ -10,6 +10,9 @@ import { setNotification } from '@/redux/slices/notificationSlice';
 import { Ionicons } from '@expo/vector-icons';
 import { authFetch } from '../utils/authFetch';
 import { reload } from '../redux/slices/itemsSlice';
+import { setLoading, setLoadingMessage } from '../redux/slices/loadingSlice';
+import * as Location from 'expo-location';
+
 
 //tables - listings, listing_item, swapping_for
 // fields - listing_id, user_id, caption, likes*, | listing_id, item_id | item_id*, category_id
@@ -19,9 +22,10 @@ export default function createListing() {
     const [formData, setFormData] = useState({
         listing_id: '',
         caption: '',
-        item_id: '',
-        category_id:''
+        item_ids: [], // changed from item_id
+        category_id: ''
     });
+    
     const[itemSearchTxt, setItemSearchText] = useState('o');
     const items = useSelector(state => state.items.items);
     const searched_items = items?.filter(item => item.title.toLowerCase().startsWith(itemSearchTxt.toLowerCase()));
@@ -31,24 +35,78 @@ export default function createListing() {
         setFormData(prevState => ({ ...prevState, [key]: value }));
     };
 
+    const toggleItemSelection = (itemId) => {
+        setFormData(prev => {
+            const exists = prev.item_ids.includes(itemId);
+            const updatedIds = exists
+                ? prev.item_ids.filter(id => id !== itemId)  // remove
+                : [...prev.item_ids, itemId];               // add
+    
+            return { ...prev, item_ids: updatedIds };
+        });
+    };
+
     const categories_map = {"Camping":1, "books":2};
     const categories=["Camping","books"];
 
     const handleSubmit = async () => {
-     
-        try {
-            const listing_id = uuid.v4();
-
-            let fd = formData;
-            const item_body ={listing_id,caption:fd.caption, category: fd.category_id, item_id: fd.item_id};
-            const data = await authFetch('/api/listing',{method:'POST', body: JSON.stringify(item_body)})
-            data && dispatch(setNotification({ message: "Listing added successfully!", type: "success", duration: 2000 }));
-            dispatch(reload());
-
-        } catch (error) {
-            console.error('Error uploading Listing', error);
+        // Ensure required form data is present
+        if (!formData.caption || !formData.category_id || !formData.item_ids?.length) {
+          dispatch(setNotification({ message: "Please fill in all required fields", type: "error", duration: 2000 }));
+          return;
         }
-    };
+      
+        try {
+          dispatch(setLoading(true));
+          dispatch(setLoadingMessage('Checking location permission...'));
+      
+          const { status } = await Location.requestForegroundPermissionsAsync();
+          if (status !== 'granted') {
+            dispatch(setNotification({ message: "Location permission denied", type: "error", duration: 2000 }));
+            return;
+          }
+      
+          dispatch(setLoadingMessage('Fetching location...'));
+          const loc = await Location.getCurrentPositionAsync({});
+      
+          if (!loc || !loc.coords) {
+            dispatch(setNotification({ message: "Could not fetch location", type: "error", duration: 2000 }));
+            return;
+          }
+      
+          const { latitude, longitude } = loc.coords;
+      
+          const listing_id = uuid.v4();
+          const item_body = {
+            listing_id,
+            caption: formData.caption,
+            category: formData.category_id,
+            item_ids: formData.item_ids,
+            location: { latitude, longitude }
+          };
+      
+          dispatch(setLoadingMessage('Uploading listing...'));
+      
+          const data = await authFetch('/api/listing', {
+            method: 'POST',
+            body: JSON.stringify(item_body)
+          });
+      
+          if (data) {
+            dispatch(setNotification({ message: "Listing added successfully!", type: "success", duration: 2000 }));
+            dispatch(reload());
+          }
+      
+        } catch (error) {
+          console.error('Error uploading Listing', error);
+          dispatch(setNotification({ message: "Error adding listing", type: "error", duration: 2000 }));
+        } finally {
+          dispatch(setLoading(false));
+          dispatch(setLoadingMessage(''));
+        }
+      };
+      
+    
     
     return (
         <View style={styles.container}>
@@ -68,10 +126,20 @@ export default function createListing() {
                         <Text style={styles.title}>{item?.title}</Text>
                     </View>
                     
-                    <Pressable style={{position:'absolute',right:5, top: 1}} onPress={() => {updateFormData('item_id',item.item_id)}}>
-                        <Ionicons name="add-circle" size={24} color="white" />
+                    <Pressable
+                        style={{ position: 'absolute', right: 5, top: 1 }}
+                        onPress={() => toggleItemSelection(item.item_id)}
+                    >
+                        <Ionicons
+                            name={formData.item_ids.includes(item.item_id) ? "checkmark-circle" : "add-circle"}
+                            size={24}
+                            color={formData.item_ids.includes(item.item_id) ? "green" : "white"}
+                        />
                     </Pressable>
-                    {item.item_id == formData.item_id && <Text style={{color:'green'}}>selected</Text>}
+
+                    {formData.item_ids.includes(item.item_id) && (
+                        <Text style={{ color: 'green' }}>selected</Text>
+                    )}
                 
                 </View>
 

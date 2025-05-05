@@ -1,8 +1,10 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import { Text,Platform, View, Image} from 'react-native';
+import { Text,Platform, View, Image, Button, Pressable} from 'react-native';
 import Constants from 'expo-constants';
+import { useDispatch, useSelector } from "react-redux";
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_BASE_URL } from '@/constants/api';
 import Logo from '../assets/images/swaps-logo1.png';
@@ -14,8 +16,8 @@ import 'react-native-reanimated';
 import { Provider } from "react-redux";
 import { store } from "../redux/store";
 import Notification from '@/components/Notification';
-import { useDispatch, useSelector } from "react-redux";
 import { clearNotification , setNotification} from '@/redux/slices/notificationSlice';
+import {clearUser, setUser} from '../redux/slices/userSlice';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from "expo-router";
@@ -29,12 +31,17 @@ export default function AppLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter()
   const [access, setAccess] = useState(false);
+
+
+  const user = useSelector((state) => state.user.user);
   
   const notification = useSelector((state) => state.notification.notification)
+
+
+  
   
   const checkTokenValidity = async () => {
     const token = await AsyncStorage.getItem('authToken');
-    console.log(token)
 
     if (token) {
       try {
@@ -49,6 +56,7 @@ export default function AppLayout() {
         const data = await response.json();
 
         if (data.isValid === true && loaded) {
+          await dispatch(setUser(data.user));
           await SplashScreen.hideAsync();
           router.replace('/(tabs)/');
 
@@ -60,6 +68,7 @@ export default function AppLayout() {
       } catch (error) {
         console.error('Token validation failed:');
         // await AsyncStorage.removeItem('authToken');
+        setTokenChecked(true);
         loaded && router.replace('/');
       }
     }
@@ -71,6 +80,7 @@ export default function AppLayout() {
 
   const [loaded] = useFonts({
     OutfitRegular: require('../assets/fonts/Outfit-Regular.ttf'),
+    OpenSansMedium: require('../assets/fonts/OpenSans-Medium.ttf')
   });
 
   useEffect(() => {
@@ -97,7 +107,7 @@ export default function AppLayout() {
           duration={notification.duration}
           // onClose={() => setNotification(null)}
         />)
-      }    
+      }   
      
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />

@@ -93,6 +93,7 @@ const addItem = () => {
         setFormData(prevState => ({ ...prevState, tags: filtered_tags }));
     };
 
+    // Note: Expo’s ImagePicker.launchImageLibraryAsync() only supports allowsMultipleSelection on iOS 14+. 
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status !== 'granted') {
@@ -160,7 +161,7 @@ const addItem = () => {
                 formd.append("condition", formData.condition);
                 formd.append("category_id", formData.category);
                 formd.append("tags", JSON.stringify(tagIds)); // Convert array to string
-        
+                
                 // API request
                 const response = await authImageFetch('/api/item-upload', {
                     method: 'POST',

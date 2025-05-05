@@ -3,81 +3,67 @@ import { Text,View, Image, TextInput, Button, StyleSheet, Platform } from 'react
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import ListingView from './ImageView';
 import Feather from '@expo/vector-icons/Feather';
 import { API_BASE_URL } from '@/constants/api';
 
 export function ListingCard({ listing }) {
-    console.log(listing);
 
-    const TagList = ({ type, tags = [] }) => (
-        <View style={styles.tags}>
-            {type === 'swapping' && (
-                <View style={styles.swappingForTxt}>
-                    <MaterialCommunityIcons name="swap-horizontal" size={24} color="#0582ca" />
-                </View>
-            )}
-            {tags.map((tag, index) => (
-                <Text key={index} style={styles.tagHolder}>{tag}</Text>
-            ))}
-        </View>
-    );
+    // const TagList = ({ type, tags = [] }) => (
+    //     <View style={styles.tags}>
+    //         {type === 'swapping' && (
+    //             <View style={styles.swappingForTxt}>
+    //                 <MaterialCommunityIcons name="swap-horizontal" size={24} color="#0582ca" />
+    //             </View>
+    //         )}
+    //         {tags.map((tag, index) => (
+    //             <Text key={index} style={styles.tagHolder}>{tag}</Text>
+    //         ))}
+    //     </View>
+    // );
 
     return (
         <View style={styles.listingContainer}>
             <View style={styles.listingInfo}>
                 <View style={styles.listingHeader}>
                     <View style={styles.profilePicContainer}>
-                        <Image source={{ uri: listing.profile_pic }} style={styles.profilePic} />
+                        <Image source={{ uri: listing.user.profile_pic }} style={styles.profilePic} />
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={styles.name}>{listing.name}</Text>
+                        <Text style={styles.name}>{listing.user.name}</Text>
                         <MaterialIcons name="verified" size={17} color="#ecf39e" />
                     </View>
-                    <Text style={styles.username}>{listing.username}</Text>
+                    <Text style={styles.username}>{listing.user.username}</Text>
                 </View>
 
                 <View style={styles.caption}>
                     <Text style={styles.captionTxt}>{listing.caption}</Text>
                 </View>
-                <View style={styles.itemTitleContainer}>
-                    <Text style={styles.itemTitle}>{listing.title.toUpperCase()}</Text>
+
+                {/* Pass the items array to ListingView */}
+                <View style={styles.imageContainer}>
+                    <ListingView items={listing.items} />
                 </View>
 
-                <TagList tags={[listing.condition, ...listing.tag_names]} />
-
-                <View style={styles.itemImagesContainer}>
-                    <Image source={{ uri: `${API_BASE_URL}${listing.image[0]}` }} style={styles.itemImage} />
-                </View>
-
-                <TagList type='swapping' tags={[listing.exchange_category]} />
-
-                <View style={styles.interactions}>
-                    <View style={styles.comments}>
-                        <MaterialCommunityIcons name="comment-outline" size={24} color="grey" />
-                        <Text style={styles.interactionsLabel}>{listing.comment_count}</Text>
-                    </View>
-                    <View style={styles.likes}>
-                        <Ionicons name="heart-outline" size={24} color="grey" />
-                        <Text style={styles.interactionsLabel}>{listing.like_count}</Text>
-                    </View>
-                    <View style={styles.offers}>
-                        <Ionicons name="hand-left-outline" size={24} color="grey" />
-                        <Text style={styles.interactionsLabel}>{listing.offer_count}</Text>
-                    </View>
-                </View>
+                {/* Render tags
+                {listing.items.map((item, index) => (
+                    <TagList key={index} type="swapping" tags={item.tags} />
+                ))} */}
             </View>
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     listingContainer : {
         color: 'white',
         display: 'flex',
         flexDirection: 'row',
+        paddingBottom: 20,
         marginBottom: 20,
         borderBottomColor: '#003459',
-        borderBottomWidth: 1,
+        borderBottomWidth: 2,
         borderStyle: 'dotted'
     },
     profilePicContainer : {
@@ -105,38 +91,45 @@ const styles = StyleSheet.create({
     name : {
         display: 'flex',
         alignContent: 'center',
-        fontFamily: 'OutfitRegular',
+        fontFamily: '',
         color: '#f1faee',
         marginRight: 10
 
     },
     username: {
-        fontFamily: 'OutfitRegular',
+        fontFamily: 'OpenSansMedium',
         color: 'grey',
         marginRight: 10
 
     },
     time: {
-        fontFamily: 'OutfitRegular',
+          fontFamily: 'OpenSansMedium',
         color: 'grey'
     },
     caption: {
         height:'auto',
-        fontFamily: 'OutfitRegular',
+          fontFamily: 'OpenSansMedium',
       
 
     },
     captionTxt: {
         height:'auto',
-        fontFamily: 'OutfitRegular',
-        color: '#f1faee',
-        fontSize:16
+          fontFamily: 'OpenSansMedium',
+          color: 'silver',
+
+        // color: '#f1faee',
+        fontSize:14,
+        marginBottom: 10
     },
     itemTitle: {
         color: '#00a6fb',
-        fontFamily: 'OutfitRegular',
+          fontFamily: 'OpenSansMedium',
         paddingBottom:5
         
+    },
+    imageContainer: {
+        width: "100%",
+        height: "auto"
     },
     tags: {
         flexDirection: 'row',
@@ -144,7 +137,7 @@ const styles = StyleSheet.create({
     },
     tagHolder: {
         backgroundColor: '#1d3461',
-        fontFamily: 'OutfitRegular',
+          fontFamily: 'OpenSansMedium',
         color: "#f1f3f9",
         height: 'auto',
         padding:4,
@@ -153,8 +146,8 @@ const styles = StyleSheet.create({
 
     },
     itemImagesContainer: {
-        height: 170,
-        width: '100%',
+        height: "auto",
+        width: '70%',
         borderRadius: 10
     },
     itemImage: {
@@ -169,7 +162,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         color: '#0582ca',
         marginBottom: 0,
-        fontFamily: 'OutfitRegular',
+          fontFamily: 'OpenSansMedium',
         fontSize: 15
     },
     interactions: {

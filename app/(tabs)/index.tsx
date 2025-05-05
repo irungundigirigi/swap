@@ -9,6 +9,7 @@ import {flipLoading } from '../../redux/slices/itemsSlice'
 import { router } from "expo-router";
 import {authFetch} from '../../utils/authFetch';
 import RoundPressable from '../../components/RoundPressable';
+import ImageView from '@/components/ImageView';
 
 
   // const logout = async () => {
@@ -58,10 +59,13 @@ export default function HomeScreen() {
           style={styles.reactLogo}
         />
       }>
+        {/* <View style={{height:"auto", width: "80%"}}>
+          <ImageView images={["https://picsum.photos/470" ]} />
+        </View> */}
 
-       {/* {listings && listings.map((listing) => (
+       {listings && listings.map((listing) => (
         <ListingCard key={listing.listing_id} listing={listing} />
-        ))}       */}
+        ))}      
     </ParallaxScrollView>
     </>
   );
