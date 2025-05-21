@@ -57,15 +57,15 @@ export default function createListing() {
         }
       
         try {
-          dispatch(setLoading(true));
-          dispatch(setLoadingMessage('Checking location permission...'));
+
       
           const { status } = await Location.requestForegroundPermissionsAsync();
           if (status !== 'granted') {
             dispatch(setNotification({ message: "Location permission denied", type: "error", duration: 2000 }));
             return;
           }
-      
+          dispatch(setLoading(true));
+          dispatch(setLoadingMessage('Checking location permission...'));
           dispatch(setLoadingMessage('Fetching location...'));
           const loc = await Location.getCurrentPositionAsync({});
       

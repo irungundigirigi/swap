@@ -63,7 +63,7 @@ export default function HomeScreen() {
           <ImageView images={["https://picsum.photos/470" ]} />
         </View> */}
 
-       {listings && listings.map((listing) => (
+       {listings.length > 0 && listings.map((listing) => (
         <ListingCard key={listing.listing_id} listing={listing} />
         ))}      
     </ParallaxScrollView>
