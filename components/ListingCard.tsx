@@ -9,6 +9,7 @@ import { API_BASE_URL } from '@/constants/api';
 import { useDispatch, useSelector } from "react-redux";
 
 export function ListingCard({ listing }) {
+    console.log(`user_id: ${listing.user_id}`)
     const userLocation = useSelector((state) => state.user.user.location);
 
     function getDistanceInKm(lat1, lon1, lat2, lon2) {

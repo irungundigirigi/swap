@@ -53,7 +53,6 @@ export default function AppLayout() {
         const data = await response.json();
 
         if (data.isValid === true && loaded) {
-          await dispatch(setUser(data.user));
           await SplashScreen.hideAsync();
           router.replace('/(tabs)/');
 

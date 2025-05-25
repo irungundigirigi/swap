@@ -22,6 +22,7 @@ export default function HomeScreen() {
   const dispatch = useDispatch();
   const listings = useSelector((state) => state.listings.listings);
   const refetch = useSelector((state) => state.items.fetchItems);
+  const loggedUser = useSelector((state) => state.user.user); // Get logged in user data
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -31,8 +32,8 @@ export default function HomeScreen() {
     
     try {
       setLoading(true);
-      const data = await authFetch('/api/listings', {method: 'GET'});
       const user_data = await authFetch('/api/validate-token', {method: 'GET'});
+      const data = await authFetch('/api/listings', {method: 'GET'});
       await dispatch(setUser(user_data.user));
       await dispatch(setItems(data));
       dispatch(flipLoading(true));
@@ -47,6 +48,9 @@ export default function HomeScreen() {
   useEffect(() => {
     fetchListings();
   }, [refetch]);
+
+  // Filter out listings created by the currently logged-in user
+  const filteredListings = listings.filter((listing) => listing.user.user_id !== loggedUser.user_id);
 
   return (
     <>
@@ -66,7 +70,7 @@ export default function HomeScreen() {
           <ImageView images={["https://picsum.photos/470" ]} />
         </View> */}
 
-       {listings.length > 0 && listings.map((listing) => (
+       {filteredListings.length > 0 && filteredListings.map((listing) => (
         <ListingCard key={listing.listing_id} listing={listing} />
         ))}      
     </ParallaxScrollView>
