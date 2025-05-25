@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { useDispatch, useSelector } from "react-redux";
 import { setItems } from "../../redux/slices/listingsSlice";
+import { setUser} from "../../redux/slices/userSlice";
 import {flipLoading } from '../../redux/slices/itemsSlice'
 import { router } from "expo-router";
 import {authFetch} from '../../utils/authFetch';
@@ -31,6 +32,8 @@ export default function HomeScreen() {
     try {
       setLoading(true);
       const data = await authFetch('/api/listings', {method: 'GET'});
+      const user_data = await authFetch('/api/validate-token', {method: 'GET'});
+      await dispatch(setUser(user_data.user));
       await dispatch(setItems(data));
       dispatch(flipLoading(true));
 

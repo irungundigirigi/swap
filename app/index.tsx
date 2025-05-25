@@ -9,6 +9,7 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import {setUser} from '../redux/slices/userSlice';
 import { setNotification } from '@/redux/slices/notificationSlice';
 import { Link } from 'expo-router';
 import { useRouter } from "expo-router";
@@ -22,7 +23,8 @@ export default function LoginScreen() {
   const dispatch = useDispatch()
 
   const colorscheme = useColorScheme();
-  const router = useRouter()
+  const router = useRouter();
+  const logged_user = useSelector((state) => state.user.user)
 
 
   const handleLogin = async () => {
@@ -32,7 +34,6 @@ export default function LoginScreen() {
         );
 
       (data.token && await AsyncStorage.setItem('authToken', data.token));
-  
       dispatch(setNotification({ message: "Login successful!", type: "success", duration: 2000 }));
       router.push('/(tabs)/');
 

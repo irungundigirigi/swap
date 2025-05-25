@@ -37,9 +37,6 @@ export default function AppLayout() {
   
   const notification = useSelector((state) => state.notification.notification)
 
-
-  
-  
   const checkTokenValidity = async () => {
     const token = await AsyncStorage.getItem('authToken');
 

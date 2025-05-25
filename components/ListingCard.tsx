@@ -72,7 +72,6 @@ export function ListingCard({ listing }) {
                     <Text style={styles.captionTxt}>{listing.caption}</Text>
                 </View>
 
-                Pass the items array to ListingView
                 <View style={styles.imageContainer}>
                     <ListingView items={listing.items} />
                 </View>
