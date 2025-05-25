@@ -34,6 +34,8 @@ export default function LoginScreen() {
         );
 
       (data.token && await AsyncStorage.setItem('authToken', data.token));
+      setPassword('')
+      setEmail('')
       dispatch(setNotification({ message: "Login successful!", type: "success", duration: 2000 }));
       router.push('/(tabs)/');
 

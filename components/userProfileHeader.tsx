@@ -15,9 +15,9 @@ export default function UserProfileHeader() {
   const [showMenu, setShowMenu] = useState(false);
 
   const handleLogOut = async () => {
-    dispatch(clearUser());
+    // dispatch(clearUser());
     await AsyncStorage.removeItem('authToken');
-    router.navigate('/');
+    router.dismissAll('/');
   };
 
   if (!user) return null;
